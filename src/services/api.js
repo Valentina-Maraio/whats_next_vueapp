@@ -7,4 +7,11 @@ const apiClient = axios.create({
   },
 });
 
-export default apiClient;
+export default {
+  getBooks() {
+    return apiClient.get('/books/');
+  },
+  getSuggestions(author) {
+    return apiClient.post('/suggestion', { author });  // POST request to /suggestion
+  }
+};
