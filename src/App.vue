@@ -1,20 +1,16 @@
 <template>
   <div id="app">
-    <AddBook />
-    <ApiData />
+    <LayoutPage />
   </div>
 </template>
 
 <script>
-import ApiData from "./components/ApiData";
-import AddBook from "./components/AddBook";
-import SearchCard from "./components/SearchCard.vue";
+import LayoutPage from "./components/LayoutPage";
 
 export default {
   name: "App",
   components: {
-    ApiData,
-    AddBook,
+    LayoutPage,
   },
 };
 </script>
