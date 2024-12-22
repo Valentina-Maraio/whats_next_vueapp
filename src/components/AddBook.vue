@@ -10,13 +10,6 @@
             <br /><br />
             <button type="submit">Add Book</button>
         </form>
-        <h2>Book List</h2>
-        <input type="text" v-model="searchQuery" placeholder="Search by title or author" />
-        <ul>
-            <li v-for="book in filteredBooks" :key="book.id">
-                {{ book.title }} by {{ book.author }}
-            </li>
-        </ul>
     </div>
 </template>
 

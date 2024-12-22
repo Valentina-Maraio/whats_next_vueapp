@@ -8,6 +8,7 @@ const store = new Vuex.Store({
   state: {
     books: [],
     error: null,
+    searchedBook: null, // Store the single searched book
   },
   mutations: {
     setBooks(state, books) {
@@ -16,8 +17,8 @@ const store = new Vuex.Store({
     setError(state, error) {
       state.error = error;
     },
-    addBook(state, newBook) {
-      state.books.push(newBook);
+    setSearchedBook(state, book) {
+      state.searchedBook = book;
     },
   },
   actions: {
@@ -29,12 +30,19 @@ const store = new Vuex.Store({
         commit('setError', `Error fetching data: ${error.message}`);
       }
     },
-    async addBook({ commit }, newBook) {
+
+    // Search books based on title or author
+    async searchBooks({ commit }, params) {
       try {
-        const response = await apiClient.post('/', newBook);
-        commit('addBook', response.data);
+        const response = await apiClient.get('/', { params });
+        if (response.data.length > 0) {
+          commit('setSearchedBook', response.data[0]); // Set the first matching book
+        } else {
+          commit('setSearchedBook', null); // No book found
+        }
       } catch (error) {
-        commit('setError', `Error adding book: ${error.message}`);
+        commit('setError', `Error searching books: ${error.message}`);
+        commit('setSearchedBook', null); // Reset searched book on error
       }
     },
   },
