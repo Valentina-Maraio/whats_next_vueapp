@@ -1,23 +1,19 @@
 <template>
-  <div class="container-fluid vh-100 d-flex flex-column">
-    <div class="m-3 flex-grow-1 border">
+  <div class="container-fluid vh-100 d-flex flex-column sfondo">
+    <div class="m-3 flex-grow-1">
       <b-row class="h-100">
-        <b-col cols="12" md="5" class="p-3 border bg-light">
+        <b-col cols="12" md="5" class="p-3">
           <div class="inner-div">
             <!-- Card for input fields -->
-            <div class="card w-75 p-3 shadow">
+            <div class="card w-75 p-3 shadow custom-background">
               <div class="card-body">
-                <h5 class="card-title text-center mb-3">Choose Your Next Adventure</h5>
                 <div class="authors-grid">
-                  <!-- Loop through the first 10 grouped authors -->
-                  <div v-for="(booksByAuthor, author) in limitedGroupedBooks" :key="author">
+                  <!-- Loop through the first 10 random authors -->
+                  <div v-for="(author, index) in randomAuthors" :key="index">
                     <button @click="handleSelectAuthor(author)">
                       {{ author }}
                     </button>
                   </div>
-                </div>
-                <div v-if="loading">
-                  <p>Loading suggestions...</p>
                 </div>
                 <div v-if="error" class="text-danger">
                   <p>Error fetching suggestions.</p>
@@ -28,20 +24,19 @@
         </b-col>
 
         <!-- Column 3 (Displaying the Card) -->
-        <b-col cols="12" md="7" class="p-3 border bg-secondary text-white position-relative">
+        <b-col cols="12" md="7" class="p-3 text-white position-relative">
           <div class="inner-div">
-            <p>Content for Column 3</p>
             <!-- Conditionally render the card based on form input -->
             <div v-if="selectedAuthor"
-              class="card w-75 mx-auto mt-5 position-absolute top-50 start-50 translate-middle z-index-100 custom-card-bg">
-              <div class="card-body">
+              class="autors-grid custom-card-bg">
+              <div class="card-body card-result results">
                 <h2 class="card-title text-center mb-3">Suggestions for books by "{{ selectedAuthor }}"</h2>
+                <ul v-if="suggestedBooks.length > 0">
+                  <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
+                </ul>
+                <p v-else>No suggestions available.</p>
+                <button @click="closeCard" class="btn btn-danger w-100 mt-3">Close</button>
               </div>
-              <ul v-if="suggestedBooks.length > 0">
-                <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
-              </ul>
-              <p v-else>No suggestions available.</p>
-              <button @click="closeCard" class="btn btn-danger w-100 mt-3">Close</button>
             </div>
           </div>
         </b-col>
@@ -56,35 +51,13 @@ export default {
   data() {
     return {
       books: [],               // List of books fetched from API
+      authors: [],             // List of authors
+      randomAuthors: [],       // List of 10 random authors
       selectedAuthor: null,    // Selected author by the user
-      suggestedBooks: [],      // Suggested books from OpenAI
+      suggestedBooks: [],      // Suggested books
       loading: false,          // Loading state
       error: false,            // Error state
     };
-  },
-  computed: {
-    // Group books by author
-    groupedBooks() {
-      return this.books.reduce((groups, book) => {
-        const author = book.author || 'Unknown Author'; // Default if no author
-        if (!groups[author]) {
-          groups[author] = [];
-        }
-        groups[author].push(book);
-        return groups;
-      }, {});
-    },
-    // Get the first 10 authors
-    limitedGroupedBooks() {
-      const authors = Object.keys(this.groupedBooks).slice(0, 10); // Limit to 10 authors
-      const limitedBooks = {};
-
-      authors.forEach(author => {
-        limitedBooks[author] = this.groupedBooks[author];
-      });
-
-      return limitedBooks;
-    }
   },
   methods: {
     // Fetch books from the API
@@ -92,12 +65,14 @@ export default {
       try {
         const response = await fetch('https://whats-next-tbr-fastapi.onrender.com/books/');
         this.books = await response.json();
+        this.authors = this.books.map(book => book.author);
+        this.randomAuthors = this.authors.filter((author, index, self) => self.indexOf(author) === index).slice(0, 5);
       } catch (error) {
         console.error("Error fetching books:", error);
       }
     },
 
-    // Handle selecting an author and fetch AI suggestions
+    // Handle selecting an author and fetch suggestions
     async handleSelectAuthor(author) {
       this.selectedAuthor = author;
       this.loading = true;  // Show loading spinner
@@ -105,43 +80,37 @@ export default {
       this.suggestedBooks = []; // Clear previous suggestions
 
       const suggestions = await this.fetchSuggestions(author);
-      this.suggestedBooks = suggestions;
+      this.suggestedBooks = suggestions.suggestions;
       this.loading = false; // Hide loading spinner
     },
 
     // Fetch book suggestions based on the selected author
     async fetchSuggestions(author) {
-  try {
-    const response = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer YOUR_OPENAI_API_KEY`, // Add your OpenAI API key here
-      },
-      body: JSON.stringify({
-        model: 'text-davinci-003',
-        prompt: `Suggest some books written by ${author}.`,
-        max_tokens: 150,
-        n: 5,
-        stop: ['\n'],
-      }),
-    });
+      try {
+        const response = await fetch('https://whats-next-tbr-fastapi.onrender.com/suggestion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ author }),
+        });
 
-    if (!response.ok) {
-      const errorDetails = await response.json();
-      console.error("Error fetching suggestions:", errorDetails); // Log error details
-      throw new Error('Failed to fetch suggestions');
-    }
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          console.error("Error fetching suggestions:", errorDetails); // Log error details
+          throw new Error('Failed to fetch suggestions');
+        }
 
-    const data = await response.json();
-    return data.choices.map(choice => choice.text.trim()); // Parse the response for suggestions
-  } catch (error) {
-    console.error("Error fetching suggestions:", error);
-    this.error = true; // Set error state if the request fails
-    this.loading = false; // Hide loading spinner
-    return [];
-  }
-},
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        this.error = true; // Set error state if the request fails
+        this.loading = false; // Hide loading spinner
+        return { suggestions: [] };
+      }
+    },
+
     // Function to close the card
     closeCard() {
       this.selectedAuthor = null; // Close the card by clearing the searchedBook data
@@ -164,6 +133,15 @@ body {
   height: 100%;
 }
 
+.sfondo {
+  background-image: url('@/assets/whats_next_app.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  position: relative;
+}
+
 /* Adjust the inner container's height to account for the margin */
 .m-3.flex-grow-1 {
   height: calc(100% - 2rem);
@@ -180,11 +158,42 @@ body {
   text-align: center;
 }
 
+.responsive-image {
+  width: 100%;
+  /* Make the image fill the container width */
+  height: auto;
+  /* Maintain the aspect ratio */
+  object-fit: cover;
+  /* Ensure the image covers the div without stretching */
+  display: block;
+  /* Remove any spacing below the image */
+  border-radius: 8px;
+  /* Optional: rounded corners */
+}
+
+.responsive-video {
+  width: 100%;
+  /* Ensure the video fills the container width */
+  height: auto;
+  /* Maintain the aspect ratio */
+  object-fit: cover;
+  /* Ensure the video covers the container without stretching */
+  display: block;
+  /* Remove any spacing below the video */
+  border-radius: 8px;
+  /* Optional: rounded corners */
+}
+
 .card {
   max-width: 500px;
+  min-height: 650px;
+  /* Define a minimum height for the card */
   z-index: 100;
   /* Ensure the card appears above other elements */
+  position: relative;
+  margin: 0 auto;
 }
+
 
 .position-relative {
   position: relative;
@@ -202,14 +211,6 @@ body {
   /* Adjust the card's position by its own width/height */
 }
 
-/* Semi-transparent background for the card */
-.custom-card-bg {
-  background-color: rgba(255, 255, 255, 0.8);
-  /* White background with 80% opacity */
-  color: #000;
-  /* Ensure text remains readable */
-}
-
 /* Style for the Close button */
 .btn-danger {
   background-color: #dc3545;
@@ -224,25 +225,24 @@ body {
 
 .authors-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  /* Responsive grid */
-  gap: 10px;
-  margin-top: 20px;
+  grid-template-columns: 1fr;
+  /* Single column layout */
+  margin-top: 145px;
   z-index: 200;
+  justify-items: start;
+  margin-left: 80px;
 }
 
 button {
-  margin: 5px;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
+  color: black;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
+  line-height: 1.5;
+  background: none;
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #febd3b;
 }
 
 h1,
@@ -252,5 +252,44 @@ h2 {
 
 div {
   margin-bottom: 20px;
+}
+
+.custom-background {
+  background-image: url('@/assets/library_card.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+}
+
+/* Adjust the position of the card */
+.custom-card-position {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  /* Optional: background transparency */
+}
+
+.card-result {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure the card takes up the full height of its container */
+  position: relative;
+  overflow: hidden;
+  background: rgba(103, 101, 101, 0.5); /* Opaque background (black with 50% opacity) */
+  backdrop-filter: blur(10px); /* Apply the blur effect to the background */
+  color: white; /* Text color */
+  border-radius: 16px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures the button is pushed to the bottom */
+  flex-grow: 1; 
 }
 </style>
