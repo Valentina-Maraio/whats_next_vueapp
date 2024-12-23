@@ -27,15 +27,16 @@
         <b-col cols="12" md="7" class="p-3 text-white position-relative">
           <div class="inner-div">
             <!-- Conditionally render the card based on form input -->
-            <div v-if="selectedAuthor"
-              class="autors-grid custom-card-bg">
+            <div v-if="selectedAuthor" class="autors-grid custom-card-bg">
               <div class="card-body card-result results">
-                <h2 class="card-title text-center mb-3">Suggestions for books by "{{ selectedAuthor }}"</h2>
-                <ul v-if="suggestedBooks.length > 0">
-                  <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
-                </ul>
-                <p v-else>No suggestions available.</p>
-                <button @click="closeCard" class="btn btn-danger w-100 mt-3">Close</button>
+                <div class="space">
+                  <h2 class="card-title text-center mb-3">Suggestions for books by "{{ selectedAuthor }}"</h2>
+                  <ul v-if="suggestedBooks.length > 0">
+                    <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
+                  </ul>
+                  <p v-else>No suggestions available.</p>
+                  <button @click="closeCard" class="close w-100 mt-3">Close</button>
+                </div>
               </div>
             </div>
           </div>
@@ -212,15 +213,15 @@ body {
 }
 
 /* Style for the Close button */
-.btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
+.close {
+  background-color: #febd3b;
+  border-color: #febd3b;
+  color: black;
 }
 
-.btn-danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
+.close:hover {
+  background-color: #febd3b;
+  border-color: #febd3b;
 }
 
 .authors-grid {
@@ -277,19 +278,29 @@ div {
 .card-result {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Ensure the card takes up the full height of its container */
+  height: 100%;
+  /* Ensure the card takes up the full height of its container */
   position: relative;
   overflow: hidden;
-  background: rgba(103, 101, 101, 0.5); /* Opaque background (black with 50% opacity) */
-  backdrop-filter: blur(10px); /* Apply the blur effect to the background */
-  color: white; /* Text color */
+  background: rgba(103, 101, 101, 0.5);
+  /* Opaque background (black with 50% opacity) */
+  backdrop-filter: blur(10px);
+  /* Apply the blur effect to the background */
+  color: white;
+  /* Text color */
   border-radius: 16px;
 }
 
 .results {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures the button is pushed to the bottom */
-  flex-grow: 1; 
+  justify-content: space-between;
+  /* Ensures the button is pushed to the bottom */
+  flex-grow: 1;
 }
+
+ul {
+  list-style-type: none;
+}
+
 </style>
