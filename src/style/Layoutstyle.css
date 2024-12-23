@@ -1,0 +1,176 @@
+/* Ensure the body has no margin and padding */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.sfondo {
+  background-image: url('@/assets/whats_next_app.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  position: relative;
+}
+
+/* Adjust the inner container's height to account for the margin */
+.m-3.flex-grow-1 {
+  height: calc(100% - 2rem);
+  /* Adjust for 1.5rem margin (1.5rem * 2 = 3rem total) */
+}
+
+/* Optional styling for the inner divs */
+.inner-div {
+  height: 100%;
+  /* Fill the column height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.responsive-image {
+  width: 100%;
+  /* Make the image fill the container width */
+  height: auto;
+  /* Maintain the aspect ratio */
+  object-fit: cover;
+  /* Ensure the image covers the div without stretching */
+  display: block;
+  /* Remove any spacing below the image */
+  border-radius: 8px;
+  /* Optional: rounded corners */
+}
+
+.responsive-video {
+  width: 100%;
+  /* Ensure the video fills the container width */
+  height: auto;
+  /* Maintain the aspect ratio */
+  object-fit: cover;
+  /* Ensure the video covers the container without stretching */
+  display: block;
+  /* Remove any spacing below the video */
+  border-radius: 8px;
+  /* Optional: rounded corners */
+}
+
+.card {
+  max-width: 500px;
+  min-height: 650px;
+  /* Define a minimum height for the card */
+  z-index: 100;
+  /* Ensure the card appears above other elements */
+  position: relative;
+  margin: 0 auto;
+}
+
+
+.position-relative {
+  position: relative;
+  /* Necessary for the card to be positioned relative to this container */
+}
+
+/* Center the card over the second column */
+.position-absolute {
+  position: absolute;
+  top: 50%;
+  /* Vertically center the card */
+  left: 50%;
+  /* Horizontally center the card */
+  transform: translate(-50%, -50%);
+  /* Adjust the card's position by its own width/height */
+}
+
+/* Style for the Close button */
+.close {
+  background-color: #febd3b;
+  border-color: #febd3b;
+  color: black;
+}
+
+.close:hover {
+  background-color: #febd3b;
+  border-color: #febd3b;
+}
+
+.authors-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Single column layout */
+  margin-top: 145px;
+  z-index: 200;
+  justify-items: start;
+  margin-left: 80px;
+}
+
+button {
+  color: black;
+  border: none;
+  cursor: pointer;
+  line-height: 1.5;
+  background: none;
+}
+
+button:hover {
+  background-color: #febd3b;
+}
+
+h1,
+h2 {
+  color: #333;
+}
+
+div {
+  margin-bottom: 20px;
+}
+
+.custom-background {
+  background-image: url('@/assets/library_card.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+}
+
+/* Adjust the position of the card */
+.custom-card-position {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  /* Optional: background transparency */
+}
+
+.card-result {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* Ensure the card takes up the full height of its container */
+  position: relative;
+  overflow: hidden;
+  background: rgba(103, 101, 101, 0.5);
+  /* Opaque background (black with 50% opacity) */
+  backdrop-filter: blur(10px);
+  /* Apply the blur effect to the background */
+  color: white;
+  /* Text color */
+  border-radius: 16px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Ensures the button is pushed to the bottom */
+  flex-grow: 1;
+}
+
+ul {
+  list-style-type: none;
+}
