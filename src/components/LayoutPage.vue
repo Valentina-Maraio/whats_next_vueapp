@@ -28,15 +28,15 @@
           <div class="inner-div">
             <!-- Conditionally render the card based on form input -->
             <div v-if="selectedAuthor"
-              class="card w-75 mx-auto mt-5 position-absolute top-50 start-50 translate-middle z-index-100 custom-card-bg">
-              <div class="card-body">
+              class="autors-grid custom-card-bg">
+              <div class="card-body card-result results">
                 <h2 class="card-title text-center mb-3">Suggestions for books by "{{ selectedAuthor }}"</h2>
+                <ul v-if="suggestedBooks.length > 0">
+                  <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
+                </ul>
+                <p v-else>No suggestions available.</p>
+                <button @click="closeCard" class="btn btn-danger w-100 mt-3">Close</button>
               </div>
-              <ul v-if="suggestedBooks.length > 0">
-                <li v-for="(book, index) in suggestedBooks" :key="index">{{ book }}</li>
-              </ul>
-              <p v-else>No suggestions available.</p>
-              <button @click="closeCard" class="btn btn-danger w-100 mt-3">Close</button>
             </div>
           </div>
         </b-col>
@@ -211,13 +211,6 @@ body {
   /* Adjust the card's position by its own width/height */
 }
 
-/* Semi-transparent background for the card */
-.custom-card-bg {
-  /* White background with 80% opacity */
-  color: #000;
-  /* Ensure text remains readable */
-}
-
 /* Style for the Close button */
 .btn-danger {
   background-color: #dc3545;
@@ -268,7 +261,6 @@ div {
   background-repeat: no-repeat;
   height: 100%;
   position: relative;
-  padding: 20px;
   border-radius: 8px;
 }
 
@@ -279,7 +271,25 @@ div {
   left: 50%;
   transform: translateX(-50%);
   z-index: 200;
-  padding: 20px;
   /* Optional: background transparency */
+}
+
+.card-result {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure the card takes up the full height of its container */
+  position: relative;
+  overflow: hidden;
+  background: rgba(103, 101, 101, 0.5); /* Opaque background (black with 50% opacity) */
+  backdrop-filter: blur(10px); /* Apply the blur effect to the background */
+  color: white; /* Text color */
+  border-radius: 16px;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures the button is pushed to the bottom */
+  flex-grow: 1; 
 }
 </style>
